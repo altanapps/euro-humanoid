@@ -26,10 +26,20 @@ evals/         # walking + manipulation eval definitions and results
 ## Status
 
 - [x] Repo scaffold
-- [ ] Reference design survey
-- [ ] European actuation supply-chain map
-- [ ] Sensors / compute / battery / structure sourcing
-- [ ] Joint spec sheet + morphology freeze
-- [ ] URDF/USD + Isaac Lab walking policy
-- [ ] Manipulation evals
-- [ ] Final costed BOM
+- [x] Reference design survey → `sourcing/reference-designs.md`
+- [x] European actuation supply-chain map → `sourcing/actuation-europe.md`
+- [x] Sensors / compute / battery / structure sourcing → `sourcing/non-actuation-europe.md`
+- [x] Design v0 (EUH-1: 23 DoF, 1.25 m, ~30 kg) → `design/design-v0.md`
+- [x] BOM v0 (≈ €62k prototype, gripper config) → `bom/bom-v0.md`
+- [x] Sim pipeline plan → `sim/pipeline.md`
+- [ ] **Phase 0:** Berkeley Humanoid Lite Isaac Lab env + EUH-1 actuator models — does it still walk?
+- [ ] Phase 1: own CAD → URDF/MJCF → Isaac Lab training + eval suite
+- [ ] Phase 2: bench-test 1× class A + 1× class B joint, sysID, retrain
+- [ ] Phase 3: full build
+
+## Headline findings (2026-06-10)
+
+- **Feasible.** Every subsystem has a credible European source except GPU inference — one declared exception (Jetson Orin NX, €800, 1.3% of BOM).
+- **Cost:** ≈ €62k prototype / €35–40k at ~100 units. The European premium (~€24k vs Chinese actuators) is concentrated entirely in actuation — Europe has no cheap integrated QDD module ecosystem.
+- **Architecture:** QDD hybrid buy/build — buy Synapticon ACTILINK-JD (DE) for medium joints, build high/small-torque joints from TQ-RoboDrive (DE) motors + Neugart (DE) planetaries + MAB Robotics (PL) drives + RLS (SI) encoders.
+- **Fork base:** Berkeley Humanoid Lite (Isaac Lab pipeline) + K-Bot (full-size CAD), benchmarked against Unitree G1.
