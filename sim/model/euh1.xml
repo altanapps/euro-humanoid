@@ -1,0 +1,177 @@
+<mujoco model="euh1">
+  <compiler angle="radian" autolimits="true" />
+  <option timestep="0.002" integrator="implicitfast" />
+  <visual>
+    <global offwidth="1280" offheight="720" />
+    <headlight ambient="0.3 0.3 0.3" diffuse="0.6 0.6 0.6" specular="0.1 0.1 0.1" />
+  </visual>
+  <asset>
+    <texture type="skybox" builtin="gradient" rgb1="0.45 0.6 0.75" rgb2="0.9 0.93 0.96" width="256" height="256" />
+    <texture name="grid" type="2d" builtin="checker" rgb1="0.22 0.24 0.26" rgb2="0.28 0.30 0.32" width="512" height="512" />
+    <material name="grid" texture="grid" texrepeat="8 8" reflectance="0.1" />
+  </asset>
+  <default>
+    <geom contype="0" conaffinity="0" group="1" />
+    <default class="collision">
+      <geom contype="1" conaffinity="1" group="0" condim="4" friction="1 0.02 0.0001" />
+    </default>
+    <default class="actA">
+      <joint damping="4" armature="0.023" />
+      <position kp="120" forcerange="-80 80" />
+    </default>
+    <default class="actB">
+      <joint damping="2.5" armature="0.0065" />
+      <position kp="60" forcerange="-48 48" />
+    </default>
+    <default class="actC">
+      <joint damping="1.5" armature="0.0013" />
+      <position kp="30" forcerange="-20 20" />
+    </default>
+  </default>
+  <worldbody>
+    <light pos="0 -1.5 2.5" dir="0 0.5 -1" directional="true" />
+    <geom name="floor" type="plane" size="10 10 0.1" material="grid" contype="1" conaffinity="1" condim="4" friction="1 0.02 0.0001" group="0" />
+    <body name="pelvis" pos="0 0 0.625202">
+      <freejoint name="root" />
+      <geom name="pelvis_struct" type="capsule" fromto="0 -0.08 0.05 0 0.08 0.05" size="0.06" mass="0.6" rgba="0.55 0.57 0.6 1" />
+      <body name="left_hip_yaw_link" pos="0 0.1 0">
+        <joint name="left_hip_yaw" axis="0 0 1" range="-0.785398 0.785398" class="actB" />
+        <geom name="left_hip_yaw_link_act_B_0" type="sphere" size="0.045" mass="1.15" rgba="0.95 0.65 0.15 1" />
+        <body name="left_hip_roll_link" pos="0 0 0">
+          <joint name="left_hip_roll" axis="1 0 0" range="-0.523599 0.785398" class="actA" />
+          <geom name="left_hip_roll_link_act_A_0" type="sphere" size="0.05" mass="1.6" rgba="0.85 0.33 0.1 1" />
+          <body name="left_thigh" pos="0 0 0">
+            <joint name="left_hip_pitch" axis="0 1 0" range="-2.0944 1.0472" class="actA" />
+            <geom name="left_thigh_act_A_0" type="sphere" size="0.06" mass="1.6" rgba="0.85 0.33 0.1 1" />
+            <geom name="left_thigh_capsule_1" type="capsule" fromto="0 0 -0.06 0 0 -0.25" size="0.05" mass="0.25" rgba="0.55 0.57 0.6 1" />
+            <body name="left_shank" pos="0 0 -0.3">
+              <joint name="left_knee_pitch" axis="0 1 0" range="0 2.61799" class="actA" />
+              <geom name="left_shank_act_A_0" type="sphere" size="0.055" mass="1.6" rgba="0.85 0.33 0.1 1" />
+              <geom name="left_shank_capsule_1" type="capsule" fromto="0 0 -0.05 0 0 -0.25" size="0.045" mass="0.2" rgba="0.55 0.57 0.6 1" />
+              <body name="left_ankle_pitch_link" pos="0 0 -0.3">
+                <joint name="left_ankle_pitch" axis="0 1 0" range="-0.872665 0.872665" class="actB" damping="4" />
+                <geom name="left_ankle_pitch_link_act_B_0" type="sphere" size="0.045" mass="1.15" rgba="0.95 0.65 0.15 1" />
+                <body name="left_foot" pos="0 0 0">
+                  <joint name="left_ankle_roll" axis="1 0 0" range="-0.523599 0.523599" class="actC" />
+                  <geom name="left_foot_act_C_0" type="sphere" size="0.04" mass="0.5" rgba="0.3 0.55 0.85 1" />
+                  <geom name="left_foot_bota_ft_1" type="cylinder" pos="0 0 -0.022" size="0.024 0.0131" mass="0.06" rgba="0.25 0.3 0.35 1" />
+                  <geom name="left_foot_box" type="box" pos="0.03 0 -0.035" size="0.1 0.04 0.015" mass="0.15" rgba="0.2 0.2 0.22 1" class="collision" />
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="right_hip_yaw_link" pos="0 -0.1 0">
+        <joint name="right_hip_yaw" axis="0 0 1" range="-0.785398 0.785398" class="actB" />
+        <geom name="right_hip_yaw_link_act_B_0" type="sphere" size="0.045" mass="1.15" rgba="0.95 0.65 0.15 1" />
+        <body name="right_hip_roll_link" pos="0 0 0">
+          <joint name="right_hip_roll" axis="1 0 0" range="-0.785398 0.523599" class="actA" />
+          <geom name="right_hip_roll_link_act_A_0" type="sphere" size="0.05" mass="1.6" rgba="0.85 0.33 0.1 1" />
+          <body name="right_thigh" pos="0 0 0">
+            <joint name="right_hip_pitch" axis="0 1 0" range="-2.0944 1.0472" class="actA" />
+            <geom name="right_thigh_act_A_0" type="sphere" size="0.06" mass="1.6" rgba="0.85 0.33 0.1 1" />
+            <geom name="right_thigh_capsule_1" type="capsule" fromto="0 0 -0.06 0 0 -0.25" size="0.05" mass="0.25" rgba="0.55 0.57 0.6 1" />
+            <body name="right_shank" pos="0 0 -0.3">
+              <joint name="right_knee_pitch" axis="0 1 0" range="0 2.61799" class="actA" />
+              <geom name="right_shank_act_A_0" type="sphere" size="0.055" mass="1.6" rgba="0.85 0.33 0.1 1" />
+              <geom name="right_shank_capsule_1" type="capsule" fromto="0 0 -0.05 0 0 -0.25" size="0.045" mass="0.2" rgba="0.55 0.57 0.6 1" />
+              <body name="right_ankle_pitch_link" pos="0 0 -0.3">
+                <joint name="right_ankle_pitch" axis="0 1 0" range="-0.872665 0.872665" class="actB" damping="4" />
+                <geom name="right_ankle_pitch_link_act_B_0" type="sphere" size="0.045" mass="1.15" rgba="0.95 0.65 0.15 1" />
+                <body name="right_foot" pos="0 0 0">
+                  <joint name="right_ankle_roll" axis="1 0 0" range="-0.523599 0.523599" class="actC" />
+                  <geom name="right_foot_act_C_0" type="sphere" size="0.04" mass="0.5" rgba="0.3 0.55 0.85 1" />
+                  <geom name="right_foot_bota_ft_1" type="cylinder" pos="0 0 -0.022" size="0.024 0.0131" mass="0.06" rgba="0.25 0.3 0.35 1" />
+                  <geom name="right_foot_box" type="box" pos="0.03 0 -0.035" size="0.1 0.04 0.015" mass="0.15" rgba="0.2 0.2 0.22 1" class="collision" />
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="torso" pos="0 0 0.1">
+        <joint name="waist_yaw" axis="0 0 1" range="-1.0472 1.0472" class="actB" />
+        <geom name="torso_act_B_0" type="sphere" size="0.05" mass="1.15" rgba="0.95 0.65 0.15 1" />
+        <geom name="torso_capsule_1" type="capsule" fromto="0 0 0.03 0 0 0.27" size="0.09" mass="0.7" rgba="0.55 0.57 0.6 1" />
+        <geom name="torso_battery_2" type="box" pos="-0.06 0 0.13" size="0.042 0.047 0.132" mass="2.9" rgba="0.25 0.3 0.35 1" />
+        <geom name="torso_compute_vision_3" type="box" pos="0.07 0 0.24" size="0.04 0.05 0.04" mass="1.7" rgba="0.25 0.3 0.35 1" />
+        <geom name="torso_head_4" type="sphere" pos="0 0 0.42" size="0.08" mass="0.25" rgba="0.85 0.85 0.88 1" />
+        <body name="left_shoulder_pitch_link" pos="0 0.18 0.3">
+          <joint name="left_shoulder_pitch" axis="0 1 0" range="-2.61799 1.0472" class="actB" />
+          <geom name="left_shoulder_pitch_link_act_B_0" type="sphere" size="0.045" mass="1.15" rgba="0.95 0.65 0.15 1" />
+          <body name="left_shoulder_roll_link" pos="0 0 0">
+            <joint name="left_shoulder_roll" axis="1 0 0" range="-0.523599 2.79253" class="actC" />
+            <geom name="left_shoulder_roll_link_act_C_0" type="sphere" size="0.04" mass="0.5" rgba="0.3 0.55 0.85 1" />
+            <body name="left_upper_arm" pos="0 0 0">
+              <joint name="left_shoulder_yaw" axis="0 0 1" range="-1.5708 1.5708" class="actC" />
+              <geom name="left_upper_arm_act_C_0" type="sphere" size="0.035" mass="0.5" rgba="0.3 0.55 0.85 1" />
+              <geom name="left_upper_arm_capsule_1" type="capsule" fromto="0 0 -0.05 0 0 -0.18" size="0.035" mass="0.1" rgba="0.55 0.57 0.6 1" />
+              <body name="left_forearm" pos="0 0 -0.22">
+                <joint name="left_elbow_pitch" axis="0 1 0" range="-2.53073 0" class="actC" />
+                <geom name="left_forearm_act_C_0" type="sphere" size="0.04" mass="0.5" rgba="0.3 0.55 0.85 1" />
+                <geom name="left_forearm_capsule_1" type="capsule" fromto="0 0 -0.05 0 0 -0.18" size="0.03" mass="0.08" rgba="0.55 0.57 0.6 1" />
+                <body name="left_hand" pos="0 0 -0.22">
+                  <joint name="left_wrist_roll" axis="0 0 1" range="-3.14159 3.14159" class="actC" />
+                  <geom name="left_hand_act_C_0" type="sphere" size="0.035" mass="0.5" rgba="0.3 0.55 0.85 1" />
+                  <geom name="left_hand_gripper_1" type="box" pos="0 0 -0.045" size="0.015 0.025 0.03" mass="0.05" rgba="0.25 0.3 0.35 1" />
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+        <body name="right_shoulder_pitch_link" pos="0 -0.18 0.3">
+          <joint name="right_shoulder_pitch" axis="0 1 0" range="-2.61799 1.0472" class="actB" />
+          <geom name="right_shoulder_pitch_link_act_B_0" type="sphere" size="0.045" mass="1.15" rgba="0.95 0.65 0.15 1" />
+          <body name="right_shoulder_roll_link" pos="0 0 0">
+            <joint name="right_shoulder_roll" axis="1 0 0" range="-2.79253 0.523599" class="actC" />
+            <geom name="right_shoulder_roll_link_act_C_0" type="sphere" size="0.04" mass="0.5" rgba="0.3 0.55 0.85 1" />
+            <body name="right_upper_arm" pos="0 0 0">
+              <joint name="right_shoulder_yaw" axis="0 0 1" range="-1.5708 1.5708" class="actC" />
+              <geom name="right_upper_arm_act_C_0" type="sphere" size="0.035" mass="0.5" rgba="0.3 0.55 0.85 1" />
+              <geom name="right_upper_arm_capsule_1" type="capsule" fromto="0 0 -0.05 0 0 -0.18" size="0.035" mass="0.1" rgba="0.55 0.57 0.6 1" />
+              <body name="right_forearm" pos="0 0 -0.22">
+                <joint name="right_elbow_pitch" axis="0 1 0" range="-2.53073 0" class="actC" />
+                <geom name="right_forearm_act_C_0" type="sphere" size="0.04" mass="0.5" rgba="0.3 0.55 0.85 1" />
+                <geom name="right_forearm_capsule_1" type="capsule" fromto="0 0 -0.05 0 0 -0.18" size="0.03" mass="0.08" rgba="0.55 0.57 0.6 1" />
+                <body name="right_hand" pos="0 0 -0.22">
+                  <joint name="right_wrist_roll" axis="0 0 1" range="-3.14159 3.14159" class="actC" />
+                  <geom name="right_hand_act_C_0" type="sphere" size="0.035" mass="0.5" rgba="0.3 0.55 0.85 1" />
+                  <geom name="right_hand_gripper_1" type="box" pos="0 0 -0.045" size="0.015 0.025 0.03" mass="0.05" rgba="0.25 0.3 0.35 1" />
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+  <actuator>
+    <position name="left_hip_yaw" joint="left_hip_yaw" ctrlrange="-0.785398 0.785398" class="actB" />
+    <position name="left_hip_roll" joint="left_hip_roll" ctrlrange="-0.523599 0.785398" class="actA" />
+    <position name="left_hip_pitch" joint="left_hip_pitch" ctrlrange="-2.0944 1.0472" class="actA" />
+    <position name="left_knee_pitch" joint="left_knee_pitch" ctrlrange="0 2.61799" class="actA" />
+    <position name="left_ankle_pitch" joint="left_ankle_pitch" ctrlrange="-0.872665 0.872665" class="actB" kp="120" />
+    <position name="left_ankle_roll" joint="left_ankle_roll" ctrlrange="-0.523599 0.523599" class="actC" />
+    <position name="right_hip_yaw" joint="right_hip_yaw" ctrlrange="-0.785398 0.785398" class="actB" />
+    <position name="right_hip_roll" joint="right_hip_roll" ctrlrange="-0.785398 0.523599" class="actA" />
+    <position name="right_hip_pitch" joint="right_hip_pitch" ctrlrange="-2.0944 1.0472" class="actA" />
+    <position name="right_knee_pitch" joint="right_knee_pitch" ctrlrange="0 2.61799" class="actA" />
+    <position name="right_ankle_pitch" joint="right_ankle_pitch" ctrlrange="-0.872665 0.872665" class="actB" kp="120" />
+    <position name="right_ankle_roll" joint="right_ankle_roll" ctrlrange="-0.523599 0.523599" class="actC" />
+    <position name="waist_yaw" joint="waist_yaw" ctrlrange="-1.0472 1.0472" class="actB" />
+    <position name="left_shoulder_pitch" joint="left_shoulder_pitch" ctrlrange="-2.61799 1.0472" class="actB" />
+    <position name="left_shoulder_roll" joint="left_shoulder_roll" ctrlrange="-0.523599 2.79253" class="actC" />
+    <position name="left_shoulder_yaw" joint="left_shoulder_yaw" ctrlrange="-1.5708 1.5708" class="actC" />
+    <position name="left_elbow_pitch" joint="left_elbow_pitch" ctrlrange="-2.53073 0" class="actC" />
+    <position name="left_wrist_roll" joint="left_wrist_roll" ctrlrange="-3.14159 3.14159" class="actC" />
+    <position name="right_shoulder_pitch" joint="right_shoulder_pitch" ctrlrange="-2.61799 1.0472" class="actB" />
+    <position name="right_shoulder_roll" joint="right_shoulder_roll" ctrlrange="-2.79253 0.523599" class="actC" />
+    <position name="right_shoulder_yaw" joint="right_shoulder_yaw" ctrlrange="-1.5708 1.5708" class="actC" />
+    <position name="right_elbow_pitch" joint="right_elbow_pitch" ctrlrange="-2.53073 0" class="actC" />
+    <position name="right_wrist_roll" joint="right_wrist_roll" ctrlrange="-3.14159 3.14159" class="actC" />
+  </actuator>
+  <keyframe>
+    <key name="stand" qpos="0 0 0.625202 1 0 0 0 0 0 -0.3 0.6 -0.3 0 0 0 -0.3 0.6 -0.3 0 0 0 0.12 0 -0.3 0 0 -0.12 0 -0.3 0" ctrl="0 0 -0.3 0.6 -0.3 0 0 0 -0.3 0.6 -0.3 0 0 0 0.12 0 -0.3 0 0 -0.12 0 -0.3 0" />
+  </keyframe>
+</mujoco>
