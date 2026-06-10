@@ -10,6 +10,12 @@ Approach:
   3. Load the MJCF with mujoco and read back each body's mass / COM /
      principal inertia -> emit the URDF inertials from those numbers, so
      MJCF and URDF are dynamically identical by construction.
+
+Rendering: a separate VISUAL-ONLY layer (actuator pods, clamshell limbs,
+chest plates, helmet...) is emitted as zero-mass, non-colliding group-2
+geoms; the massed primitives are hidden in group 3 and the collision boxes
+made transparent. Physics is byte-identical with or without the visual
+layer — regenerate freely, never hand-edit euh1.xml.
 """
 
 from __future__ import annotations
@@ -48,7 +54,7 @@ def fvec(v) -> str:
 
 @dataclass
 class Geom:
-    kind: str                 # sphere | capsule | box | cylinder
+    kind: str                 # sphere | capsule | box | cylinder | ellipsoid
     mass: float
     pos: tuple = (0.0, 0.0, 0.0)
     size: tuple = ()          # sphere: (r,); box: half extents; cyl: (r, halflen)
@@ -56,6 +62,11 @@ class Geom:
     rgba: str = "0.55 0.57 0.6 1"
     collision: bool = False
     name: str = ""
+    # visual-only layer (zero mass, no contacts, MJCF group 2)
+    visual: bool = False
+    material: str = ""
+    zaxis: tuple = ()         # cylinder axis orientation
+    euler: tuple = ()         # rad, compiler eulerseq xyz
 
 
 @dataclass
@@ -73,12 +84,72 @@ class Body:
     joint: Joint | None = None
     geoms: list = field(default_factory=list)
     children: list = field(default_factory=list)
+    visuals: list = field(default_factory=list)   # cosmetic only, zero mass
 
 
 COL_ACT = {"A": "0.85 0.33 0.1 1", "B": "0.95 0.65 0.15 1",
            "C": "0.3 0.55 0.85 1"}
 COL_STRUCT = "0.55 0.57 0.6 1"
 COL_PAYLOAD = "0.25 0.3 0.35 1"
+
+
+# --------------------------------------------------------------------------
+# Visual-only layer.
+#
+# Physics comes EXCLUSIVELY from the massed primitives above (now hidden in
+# MJCF group 3) plus the collision foot boxes (made transparent). Everything
+# below is emitted with class="visual": contype 0, conaffinity 0, mass 0,
+# group 2 — pure cosmetics, regenerable, never hand-edited.
+# --------------------------------------------------------------------------
+
+# (name, rgba, specular, shininess, reflectance)
+MATERIALS = [
+    ("alu",           "0.72 0.73 0.75 1",  0.55, 0.35, 0.0),  # brushed clamshell
+    ("graphite",      "0.22 0.23 0.25 1",  0.45, 0.50, 0.0),
+    ("graphite_dark", "0.14 0.15 0.16 1",  0.40, 0.55, 0.0),
+    ("carbon",        "0.11 0.11 0.125 1", 0.35, 0.65, 0.0),  # matte CF tube
+    ("pod_orange",    "0.56 0.23 0.06 1",  0.65, 0.55, 0.0),  # anodized, class A
+    ("accent_orange", "0.82 0.38 0.10 1",  0.60, 0.50, 0.0),  # class-B ring
+    ("eu_blue",       "0.06 0.22 0.55 1",  0.45, 0.45, 0.0),
+    ("visor",         "0.03 0.03 0.04 1",  0.90, 0.85, 0.0),
+    ("shell_white",   "0.85 0.86 0.88 1",  0.60, 0.55, 0.0),
+    ("rubber",        "0.10 0.10 0.11 1",  0.08, 0.12, 0.0),
+    ("studio_floor",  "0.80 0.81 0.82 1",  0.40, 0.30, 0.03),
+]
+
+# Actuator pod envelopes (r, half-length), from design/envelopes.md:
+# class A ~ Ø100x60 mm, class B Synapticon JD-10 Ø106x75, class C Ø55x40.
+POD_DIMS = {"A": (0.050, 0.030), "B": (0.053, 0.0375), "C": (0.0275, 0.020)}
+POD_BODY_MAT = {"A": "pod_orange", "B": "graphite", "C": "graphite_dark"}
+POD_HUB_MAT = {"A": "graphite_dark", "B": "graphite_dark", "C": "graphite"}
+
+
+def vis(kind, *, pos=(0, 0, 0), size=(), fromto=(), material="",
+        zaxis=(), euler=()) -> Geom:
+    return Geom(kind, 0.0, pos=pos, size=size, fromto=fromto,
+                material=material, zaxis=zaxis, euler=euler, visual=True)
+
+
+def pod(act_class: str, axis, *, offset: float = 0.0,
+        pos=(0, 0, 0)) -> list:
+    """Actuator pod: cylinder centred on the joint, oriented along its axis.
+
+    `offset` slides the pod along its own axis (motors sit to one side of
+    the joint plane; also de-conflicts co-located orthogonal joints).
+    """
+    ax = np.array(axis, dtype=float)
+    ax = ax / np.linalg.norm(ax)
+    c = tuple(np.array(pos, dtype=float) + offset * ax)
+    r, hl = POD_DIMS[act_class]
+    geoms = [vis("cylinder", pos=c, size=(r, hl),
+                 material=POD_BODY_MAT[act_class], zaxis=axis),
+             # machined hub poking through both end faces
+             vis("cylinder", pos=c, size=(r * 0.42, hl + 0.004),
+                 material=POD_HUB_MAT[act_class], zaxis=axis)]
+    if act_class == "B":   # Synapticon identity: graphite with orange ring
+        geoms.append(vis("cylinder", pos=c, size=(r + 0.0025, 0.006),
+                         material="accent_orange", zaxis=axis))
+    return geoms
 
 
 def make_joint(jd: JointDef, side: str | None) -> Joint:
@@ -138,6 +209,41 @@ def build_leg(side: str) -> Body:
     hip_yaw = Body(f"{side}_hip_yaw_link", (0, s * m.hip_separation / 2, 0),
                    make_joint(hy, side), geoms=[act_sphere(hy, 0.045)],
                    children=[hip_roll])
+
+    # ---- visual layer (zero mass) ----
+    foot.visuals = pod("C", ar.axis, offset=0.028) + [
+        vis("cylinder", pos=(0, 0, -0.021), size=(0.027, 0.007),
+            material="graphite"),                       # Bota FT puck
+        vis("box", pos=(-0.035, 0, -0.031), size=(0.035, 0.037, 0.019),
+            material="rubber"),                         # heel block
+        vis("box", pos=(0.065, 0, -0.043), size=(0.065, 0.037, 0.007),
+            material="rubber"),                         # toe plate
+        vis("box", pos=(0.045, 0, -0.029), size=(0.038, 0.030, 0.009),
+            material="carbon"),                         # midfoot bridge
+    ]
+    ankle.visuals = pod("B", ap.axis, offset=s * 0.012)
+    shank.visuals = pod("A", kn.axis, offset=s * 0.015) + [
+        vis("box", pos=(0, 0, -0.045), size=(0.040, 0.044, 0.030),
+            material="graphite_dark"),                  # knee clevis block
+        vis("cylinder", pos=(0, 0, -0.1665), size=(0.037, 0.0885),
+            material="carbon"),                         # CF shin tube
+        vis("cylinder", pos=(0, 0, -0.085), size=(0.0395, 0.009),
+            material="graphite"),                       # clamp rings
+        vis("cylinder", pos=(0, 0, -0.245), size=(0.0395, 0.009),
+            material="graphite"),
+        vis("box", pos=(0, 0, -0.272), size=(0.030, 0.038, 0.022),
+            material="graphite_dark"),                  # ankle clevis
+    ]
+    thigh.visuals = pod("A", hp.axis, offset=s * 0.02) + [
+        vis("capsule", fromto=(0, 0, -0.075, 0, 0, -0.245), size=(0.053,),
+            material="alu"),                            # clamshell
+        vis("box", pos=(0.0515, 0, -0.16), size=(0.0045, 0.0075, 0.062),
+            material="graphite_dark"),                  # accent strips
+        vis("box", pos=(0, s * 0.0515, -0.16), size=(0.0075, 0.0045, 0.062),
+            material="graphite_dark"),
+    ]
+    hip_roll.visuals = pod("A", hr.axis, offset=-0.008)
+    hip_yaw.visuals = pod("B", hy.axis, offset=0.042)
     return hip_yaw
 
 
@@ -172,6 +278,32 @@ def build_arm(side: str) -> Body:
                      m.torso_len - m.waist_above_pelvis),
                     make_joint(sp, side), geoms=[act_sphere(sp, 0.045)],
                     children=[sh_roll])
+
+    # ---- visual layer (zero mass) ----
+    hand.visuals = pod("C", wr.axis, offset=-0.008) + [
+        vis("box", pos=(0, 0, -0.040), size=(0.014, 0.024, 0.018),
+            material="graphite"),                       # palm
+        vis("box", pos=(0, 0.014, -0.066), size=(0.009, 0.005, 0.014),
+            material="rubber"),                         # fingers
+        vis("box", pos=(0, -0.014, -0.066), size=(0.009, 0.005, 0.014),
+            material="rubber"),
+    ]
+    forearm.visuals = pod("C", el.axis, offset=s * 0.012) + [
+        vis("box", pos=(0, 0, -0.028), size=(0.024, 0.030, 0.022),
+            material="graphite_dark"),                  # elbow clevis block
+        vis("cylinder", pos=(0, 0, -0.1125), size=(0.030, 0.0625),
+            material="carbon"),                         # CF forearm tube
+        vis("cylinder", pos=(0, 0, -0.19), size=(0.027, 0.008),
+            material="graphite"),                       # wrist collar
+    ]
+    upper_arm.visuals = pod("C", sy.axis, offset=-0.032) + [
+        vis("capsule", fromto=(0, 0, -0.065, 0, 0, -0.175), size=(0.038,),
+            material="alu"),                            # clamshell
+        vis("box", pos=(0, s * 0.0365, -0.12), size=(0.010, 0.0045, 0.042),
+            material="graphite_dark"),                  # accent strip
+    ]
+    sh_roll.visuals = pod("C", sr.axis, offset=0.005)
+    sh_pitch.visuals = pod("B", sp.axis, offset=s * 0.02)
     return sh_pitch
 
 
@@ -196,6 +328,56 @@ def build_robot() -> Body:
         Geom("capsule", ms.pelvis_struct, size=(m.pelvis_radius,),
              fromto=(0, -0.08, 0.05, 0, 0.08, 0.05), name="pelvis_struct"),
     ], children=[build_leg("left"), build_leg("right"), torso])
+
+    # ---- visual layer (zero mass) ----
+    torso.visuals = pod("B", WAIST_JOINT.axis) + [
+        vis("box", pos=(0, 0, 0.16), size=(0.072, 0.105, 0.125),
+            material="alu"),                            # torso shell
+        # chest plates, slight V (apex on the centreline)
+        vis("box", pos=(0.080, 0.052, 0.13), size=(0.009, 0.058, 0.075),
+            euler=(0, 0, 0.16), material="alu"),
+        vis("box", pos=(0.080, -0.052, 0.13), size=(0.009, 0.058, 0.075),
+            euler=(0, 0, -0.16), material="alu"),
+        vis("box", pos=(0.094, 0, 0.13), size=(0.0045, 0.0065, 0.0755),
+            material="graphite"),                       # centre ridge
+        # recessed stereo-camera sensor bar (torso-mounted, envelopes.md n.3)
+        vis("box", pos=(0.079, 0, 0.235), size=(0.009, 0.064, 0.019),
+            material="graphite"),                       # bezel
+        vis("box", pos=(0.080, 0, 0.235), size=(0.0055, 0.054, 0.0105),
+            material="visor"),                          # glass, 2.5 mm recess
+        # EU-blue accent stripe
+        vis("box", pos=(0.079, 0, 0.211), size=(0.009, 0.054, 0.0045),
+            material="eu_blue"),
+        # shoulder girdle
+        vis("box", pos=(0, 0, 0.285), size=(0.055, 0.150, 0.032),
+            material="graphite"),
+        # back battery panel + latch + vents
+        vis("box", pos=(-0.080, 0, 0.15), size=(0.012, 0.062, 0.115),
+            material="graphite_dark"),
+        vis("box", pos=(-0.0905, 0, 0.235), size=(0.0025, 0.028, 0.005),
+            material="accent_orange"),
+        vis("box", pos=(-0.0925, 0, 0.115), size=(0.0008, 0.042, 0.0035),
+            material="visor"),
+        vis("box", pos=(-0.0925, 0, 0.085), size=(0.0008, 0.042, 0.0035),
+            material="visor"),
+        # neck + helmet + visor band
+        vis("cylinder", pos=(0, 0, shoulder_z + 0.015), size=(0.024, 0.022),
+            material="graphite"),
+        vis("ellipsoid", pos=(0.004, 0, shoulder_z + m.head_offset + 0.003),
+            size=(0.084, 0.081, 0.091), material="shell_white"),
+        vis("ellipsoid", pos=(0.042, 0, shoulder_z + m.head_offset + 0.012),
+            size=(0.050, 0.066, 0.026), material="visor"),
+    ]
+    pelvis.visuals = [
+        vis("box", pos=(0, 0, 0.045), size=(0.075, 0.10, 0.040),
+            material="alu"),                            # machined block
+        vis("box", pos=(0, 0, 0.0), size=(0.062, 0.085, 0.018),
+            material="graphite"),                       # chamfer step (lower)
+        vis("box", pos=(0, 0, 0.088), size=(0.060, 0.082, 0.010),
+            material="graphite"),                       # chamfer step (upper)
+        vis("box", pos=(0.069, 0, 0.050), size=(0.008, 0.050, 0.018),
+            material="graphite_dark"),                  # front plate
+    ]
     return pelvis
 
 
@@ -250,10 +432,24 @@ def geom_to_mjcf(parent: ET.Element, g: Geom, cls: str | None = None):
             e.set("pos", fvec(g.pos))
     if g.size:
         e.set("size", fvec(g.size))
+    if g.zaxis:
+        e.set("zaxis", fvec(g.zaxis))
+    if g.euler:
+        e.set("euler", fvec(g.euler))
     e.set("mass", fnum(g.mass))
-    e.set("rgba", g.rgba)
-    if g.collision:
+    if g.visual:
+        e.set("class", "visual")
+        if g.material:
+            e.set("material", g.material)
+        else:
+            e.set("rgba", g.rgba)
+    elif g.collision:
+        # collision set stays physically identical but invisible (alpha 0);
+        # the rendered look comes from the visual layer.
+        e.set("rgba", "0.3 0.3 0.32 0")
         e.set("class", "collision")
+    else:
+        e.set("rgba", g.rgba)
     return e
 
 
@@ -279,6 +475,8 @@ def body_to_mjcf(parent: ET.Element, body: Body):
             je.set("damping", fnum(kd))
     for g in body.geoms:
         geom_to_mjcf(e, g)
+    for g in body.visuals:
+        geom_to_mjcf(e, g)
     for c in body.children:
         body_to_mjcf(e, c)
     return e
@@ -291,25 +489,27 @@ def emit_mjcf(root_body: Body, hold_ctrl=None) -> str:
                   integrator="implicitfast")
 
     visual = ET.SubElement(mj, "visual")
-    ET.SubElement(visual, "global", offwidth="1280", offheight="720")
-    ET.SubElement(visual, "headlight", ambient="0.3 0.3 0.3",
-                  diffuse="0.6 0.6 0.6", specular="0.1 0.1 0.1")
+    ET.SubElement(visual, "global", offwidth="1920", offheight="1080")
+    ET.SubElement(visual, "headlight", ambient="0.22 0.22 0.22",
+                  diffuse="0.28 0.28 0.28", specular="0.05 0.05 0.05")
 
     asset = ET.SubElement(mj, "asset")
     ET.SubElement(asset, "texture", type="skybox", builtin="gradient",
-                  rgb1="0.45 0.6 0.75", rgb2="0.9 0.93 0.96",
+                  rgb1="0.72 0.76 0.82", rgb2="0.93 0.94 0.96",
                   width="256", height="256")
-    ET.SubElement(asset, "texture", name="grid", type="2d",
-                  builtin="checker", rgb1="0.22 0.24 0.26",
-                  rgb2="0.28 0.30 0.32", width="512", height="512")
-    ET.SubElement(asset, "material", name="grid", texture="grid",
-                  texrepeat="8 8", reflectance="0.1")
+    for mname, rgba, spec, shin, refl in MATERIALS:
+        ET.SubElement(asset, "material", name=mname, rgba=rgba,
+                      specular=fnum(spec), shininess=fnum(shin),
+                      reflectance=fnum(refl))
 
     default = ET.SubElement(mj, "default")
-    ET.SubElement(default, "geom", contype="0", conaffinity="0", group="1")
+    # massed primitives: physics source of truth, hidden (group 3)
+    ET.SubElement(default, "geom", contype="0", conaffinity="0", group="3")
     dcol = ET.SubElement(default, "default", **{"class": "collision"})
     ET.SubElement(dcol, "geom", contype="1", conaffinity="1", group="0",
                   condim="4", friction=fvec(FLOOR_FRICTION))
+    dvis = ET.SubElement(default, "default", **{"class": "visual"})
+    ET.SubElement(dvis, "geom", contype="0", conaffinity="0", group="2")
     for cname, cls in sorted(ACTUATOR_CLASSES.items()):
         d = ET.SubElement(default, "default", **{"class": f"act{cname}"})
         ET.SubElement(d, "joint", damping=fnum(cls.kd),
@@ -318,11 +518,21 @@ def emit_mjcf(root_body: Body, hold_ctrl=None) -> str:
                       forcerange=f"-{fnum(cls.effort)} {fnum(cls.effort)}")
 
     world = ET.SubElement(mj, "worldbody")
-    ET.SubElement(world, "light", pos="0 -1.5 2.5", dir="0 0.5 -1",
-                  directional="true")
+    # studio three-point lighting: key / fill / rim
+    ET.SubElement(world, "light", name="key", pos="2.2 -2.5 3.2",
+                  dir="-0.5 0.57 -0.65", directional="true",
+                  diffuse="0.65 0.65 0.65", specular="0.3 0.3 0.3")
+    ET.SubElement(world, "light", name="fill", pos="-2.5 2.0 2.0",
+                  dir="0.6 -0.5 -0.45", directional="true",
+                  diffuse="0.25 0.25 0.27", specular="0 0 0",
+                  castshadow="false")
+    ET.SubElement(world, "light", name="rim", pos="-2.0 -1.2 2.6",
+                  dir="0.6 0.35 -0.6", directional="true",
+                  diffuse="0.35 0.35 0.38", specular="0.45 0.45 0.45",
+                  castshadow="false")
     ET.SubElement(world, "geom", name="floor", type="plane", size="10 10 0.1",
-                  material="grid", contype="1", conaffinity="1", condim="4",
-                  friction=fvec(FLOOR_FRICTION), group="0")
+                  material="studio_floor", contype="1", conaffinity="1",
+                  condim="4", friction=fvec(FLOOR_FRICTION), group="0")
 
     unique_geom_names(root_body)
     pelvis_el = body_to_mjcf(world, root_body)

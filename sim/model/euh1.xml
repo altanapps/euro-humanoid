@@ -2,18 +2,30 @@
   <compiler angle="radian" autolimits="true" />
   <option timestep="0.002" integrator="implicitfast" />
   <visual>
-    <global offwidth="1280" offheight="720" />
-    <headlight ambient="0.3 0.3 0.3" diffuse="0.6 0.6 0.6" specular="0.1 0.1 0.1" />
+    <global offwidth="1920" offheight="1080" />
+    <headlight ambient="0.22 0.22 0.22" diffuse="0.28 0.28 0.28" specular="0.05 0.05 0.05" />
   </visual>
   <asset>
-    <texture type="skybox" builtin="gradient" rgb1="0.45 0.6 0.75" rgb2="0.9 0.93 0.96" width="256" height="256" />
-    <texture name="grid" type="2d" builtin="checker" rgb1="0.22 0.24 0.26" rgb2="0.28 0.30 0.32" width="512" height="512" />
-    <material name="grid" texture="grid" texrepeat="8 8" reflectance="0.1" />
+    <texture type="skybox" builtin="gradient" rgb1="0.72 0.76 0.82" rgb2="0.93 0.94 0.96" width="256" height="256" />
+    <material name="alu" rgba="0.72 0.73 0.75 1" specular="0.55" shininess="0.35" reflectance="0" />
+    <material name="graphite" rgba="0.22 0.23 0.25 1" specular="0.45" shininess="0.5" reflectance="0" />
+    <material name="graphite_dark" rgba="0.14 0.15 0.16 1" specular="0.4" shininess="0.55" reflectance="0" />
+    <material name="carbon" rgba="0.11 0.11 0.125 1" specular="0.35" shininess="0.65" reflectance="0" />
+    <material name="pod_orange" rgba="0.56 0.23 0.06 1" specular="0.65" shininess="0.55" reflectance="0" />
+    <material name="accent_orange" rgba="0.82 0.38 0.10 1" specular="0.6" shininess="0.5" reflectance="0" />
+    <material name="eu_blue" rgba="0.06 0.22 0.55 1" specular="0.45" shininess="0.45" reflectance="0" />
+    <material name="visor" rgba="0.03 0.03 0.04 1" specular="0.9" shininess="0.85" reflectance="0" />
+    <material name="shell_white" rgba="0.85 0.86 0.88 1" specular="0.6" shininess="0.55" reflectance="0" />
+    <material name="rubber" rgba="0.10 0.10 0.11 1" specular="0.08" shininess="0.12" reflectance="0" />
+    <material name="studio_floor" rgba="0.80 0.81 0.82 1" specular="0.4" shininess="0.3" reflectance="0.03" />
   </asset>
   <default>
-    <geom contype="0" conaffinity="0" group="1" />
+    <geom contype="0" conaffinity="0" group="3" />
     <default class="collision">
       <geom contype="1" conaffinity="1" group="0" condim="4" friction="1 0.02 0.0001" />
+    </default>
+    <default class="visual">
+      <geom contype="0" conaffinity="0" group="2" />
     </default>
     <default class="actA">
       <joint damping="4" armature="0.023" />
@@ -29,33 +41,65 @@
     </default>
   </default>
   <worldbody>
-    <light pos="0 -1.5 2.5" dir="0 0.5 -1" directional="true" />
-    <geom name="floor" type="plane" size="10 10 0.1" material="grid" contype="1" conaffinity="1" condim="4" friction="1 0.02 0.0001" group="0" />
+    <light name="key" pos="2.2 -2.5 3.2" dir="-0.5 0.57 -0.65" directional="true" diffuse="0.65 0.65 0.65" specular="0.3 0.3 0.3" />
+    <light name="fill" pos="-2.5 2.0 2.0" dir="0.6 -0.5 -0.45" directional="true" diffuse="0.25 0.25 0.27" specular="0 0 0" castshadow="false" />
+    <light name="rim" pos="-2.0 -1.2 2.6" dir="0.6 0.35 -0.6" directional="true" diffuse="0.35 0.35 0.38" specular="0.45 0.45 0.45" castshadow="false" />
+    <geom name="floor" type="plane" size="10 10 0.1" material="studio_floor" contype="1" conaffinity="1" condim="4" friction="1 0.02 0.0001" group="0" />
     <body name="pelvis" pos="0 0 0.625202">
       <freejoint name="root" />
       <geom name="pelvis_struct" type="capsule" fromto="0 -0.08 0.05 0 0.08 0.05" size="0.06" mass="0.6" rgba="0.55 0.57 0.6 1" />
+      <geom type="box" pos="0 0 0.045" size="0.075 0.1 0.04" mass="0" class="visual" material="alu" />
+      <geom type="box" size="0.062 0.085 0.018" mass="0" class="visual" material="graphite" />
+      <geom type="box" pos="0 0 0.088" size="0.06 0.082 0.01" mass="0" class="visual" material="graphite" />
+      <geom type="box" pos="0.069 0 0.05" size="0.008 0.05 0.018" mass="0" class="visual" material="graphite_dark" />
       <body name="left_hip_yaw_link" pos="0 0.1 0">
         <joint name="left_hip_yaw" axis="0 0 1" range="-0.785398 0.785398" class="actB" />
         <geom name="left_hip_yaw_link_act_B_0" type="sphere" size="0.045" mass="1.15" rgba="0.95 0.65 0.15 1" />
+        <geom type="cylinder" pos="0 0 0.042" size="0.053 0.0375" zaxis="0 0 1" mass="0" class="visual" material="graphite" />
+        <geom type="cylinder" pos="0 0 0.042" size="0.02226 0.0415" zaxis="0 0 1" mass="0" class="visual" material="graphite_dark" />
+        <geom type="cylinder" pos="0 0 0.042" size="0.0555 0.006" zaxis="0 0 1" mass="0" class="visual" material="accent_orange" />
         <body name="left_hip_roll_link" pos="0 0 0">
           <joint name="left_hip_roll" axis="1 0 0" range="-0.523599 0.785398" class="actA" />
           <geom name="left_hip_roll_link_act_A_0" type="sphere" size="0.05" mass="1.6" rgba="0.85 0.33 0.1 1" />
+          <geom type="cylinder" pos="-0.008 0 0" size="0.05 0.03" zaxis="1 0 0" mass="0" class="visual" material="pod_orange" />
+          <geom type="cylinder" pos="-0.008 0 0" size="0.021 0.034" zaxis="1 0 0" mass="0" class="visual" material="graphite_dark" />
           <body name="left_thigh" pos="0 0 0">
             <joint name="left_hip_pitch" axis="0 1 0" range="-2.0944 1.0472" class="actA" />
             <geom name="left_thigh_act_A_0" type="sphere" size="0.06" mass="1.6" rgba="0.85 0.33 0.1 1" />
             <geom name="left_thigh_capsule_1" type="capsule" fromto="0 0 -0.06 0 0 -0.25" size="0.05" mass="0.25" rgba="0.55 0.57 0.6 1" />
+            <geom type="cylinder" pos="0 0.02 0" size="0.05 0.03" zaxis="0 1 0" mass="0" class="visual" material="pod_orange" />
+            <geom type="cylinder" pos="0 0.02 0" size="0.021 0.034" zaxis="0 1 0" mass="0" class="visual" material="graphite_dark" />
+            <geom type="capsule" fromto="0 0 -0.075 0 0 -0.245" size="0.053" mass="0" class="visual" material="alu" />
+            <geom type="box" pos="0.0515 0 -0.16" size="0.0045 0.0075 0.062" mass="0" class="visual" material="graphite_dark" />
+            <geom type="box" pos="0 0.0515 -0.16" size="0.0075 0.0045 0.062" mass="0" class="visual" material="graphite_dark" />
             <body name="left_shank" pos="0 0 -0.3">
               <joint name="left_knee_pitch" axis="0 1 0" range="0 2.61799" class="actA" />
               <geom name="left_shank_act_A_0" type="sphere" size="0.055" mass="1.6" rgba="0.85 0.33 0.1 1" />
               <geom name="left_shank_capsule_1" type="capsule" fromto="0 0 -0.05 0 0 -0.25" size="0.045" mass="0.2" rgba="0.55 0.57 0.6 1" />
+              <geom type="cylinder" pos="0 0.015 0" size="0.05 0.03" zaxis="0 1 0" mass="0" class="visual" material="pod_orange" />
+              <geom type="cylinder" pos="0 0.015 0" size="0.021 0.034" zaxis="0 1 0" mass="0" class="visual" material="graphite_dark" />
+              <geom type="box" pos="0 0 -0.045" size="0.04 0.044 0.03" mass="0" class="visual" material="graphite_dark" />
+              <geom type="cylinder" pos="0 0 -0.1665" size="0.037 0.0885" mass="0" class="visual" material="carbon" />
+              <geom type="cylinder" pos="0 0 -0.085" size="0.0395 0.009" mass="0" class="visual" material="graphite" />
+              <geom type="cylinder" pos="0 0 -0.245" size="0.0395 0.009" mass="0" class="visual" material="graphite" />
+              <geom type="box" pos="0 0 -0.272" size="0.03 0.038 0.022" mass="0" class="visual" material="graphite_dark" />
               <body name="left_ankle_pitch_link" pos="0 0 -0.3">
                 <joint name="left_ankle_pitch" axis="0 1 0" range="-0.872665 0.872665" class="actB" damping="4" />
                 <geom name="left_ankle_pitch_link_act_B_0" type="sphere" size="0.045" mass="1.15" rgba="0.95 0.65 0.15 1" />
+                <geom type="cylinder" pos="0 0.012 0" size="0.053 0.0375" zaxis="0 1 0" mass="0" class="visual" material="graphite" />
+                <geom type="cylinder" pos="0 0.012 0" size="0.02226 0.0415" zaxis="0 1 0" mass="0" class="visual" material="graphite_dark" />
+                <geom type="cylinder" pos="0 0.012 0" size="0.0555 0.006" zaxis="0 1 0" mass="0" class="visual" material="accent_orange" />
                 <body name="left_foot" pos="0 0 0">
                   <joint name="left_ankle_roll" axis="1 0 0" range="-0.523599 0.523599" class="actC" />
                   <geom name="left_foot_act_C_0" type="sphere" size="0.04" mass="0.5" rgba="0.3 0.55 0.85 1" />
                   <geom name="left_foot_bota_ft_1" type="cylinder" pos="0 0 -0.022" size="0.024 0.0131" mass="0.06" rgba="0.25 0.3 0.35 1" />
-                  <geom name="left_foot_box" type="box" pos="0.03 0 -0.035" size="0.1 0.04 0.015" mass="0.15" rgba="0.2 0.2 0.22 1" class="collision" />
+                  <geom name="left_foot_box" type="box" pos="0.03 0 -0.035" size="0.1 0.04 0.015" mass="0.15" rgba="0.3 0.3 0.32 0" class="collision" />
+                  <geom type="cylinder" pos="0.028 0 0" size="0.0275 0.02" zaxis="1 0 0" mass="0" class="visual" material="graphite_dark" />
+                  <geom type="cylinder" pos="0.028 0 0" size="0.01155 0.024" zaxis="1 0 0" mass="0" class="visual" material="graphite" />
+                  <geom type="cylinder" pos="0 0 -0.021" size="0.027 0.007" mass="0" class="visual" material="graphite" />
+                  <geom type="box" pos="-0.035 0 -0.031" size="0.035 0.037 0.019" mass="0" class="visual" material="rubber" />
+                  <geom type="box" pos="0.065 0 -0.043" size="0.065 0.037 0.007" mass="0" class="visual" material="rubber" />
+                  <geom type="box" pos="0.045 0 -0.029" size="0.038 0.03 0.009" mass="0" class="visual" material="carbon" />
                 </body>
               </body>
             </body>
@@ -65,25 +109,51 @@
       <body name="right_hip_yaw_link" pos="0 -0.1 0">
         <joint name="right_hip_yaw" axis="0 0 1" range="-0.785398 0.785398" class="actB" />
         <geom name="right_hip_yaw_link_act_B_0" type="sphere" size="0.045" mass="1.15" rgba="0.95 0.65 0.15 1" />
+        <geom type="cylinder" pos="0 0 0.042" size="0.053 0.0375" zaxis="0 0 1" mass="0" class="visual" material="graphite" />
+        <geom type="cylinder" pos="0 0 0.042" size="0.02226 0.0415" zaxis="0 0 1" mass="0" class="visual" material="graphite_dark" />
+        <geom type="cylinder" pos="0 0 0.042" size="0.0555 0.006" zaxis="0 0 1" mass="0" class="visual" material="accent_orange" />
         <body name="right_hip_roll_link" pos="0 0 0">
           <joint name="right_hip_roll" axis="1 0 0" range="-0.785398 0.523599" class="actA" />
           <geom name="right_hip_roll_link_act_A_0" type="sphere" size="0.05" mass="1.6" rgba="0.85 0.33 0.1 1" />
+          <geom type="cylinder" pos="-0.008 0 0" size="0.05 0.03" zaxis="1 0 0" mass="0" class="visual" material="pod_orange" />
+          <geom type="cylinder" pos="-0.008 0 0" size="0.021 0.034" zaxis="1 0 0" mass="0" class="visual" material="graphite_dark" />
           <body name="right_thigh" pos="0 0 0">
             <joint name="right_hip_pitch" axis="0 1 0" range="-2.0944 1.0472" class="actA" />
             <geom name="right_thigh_act_A_0" type="sphere" size="0.06" mass="1.6" rgba="0.85 0.33 0.1 1" />
             <geom name="right_thigh_capsule_1" type="capsule" fromto="0 0 -0.06 0 0 -0.25" size="0.05" mass="0.25" rgba="0.55 0.57 0.6 1" />
+            <geom type="cylinder" pos="0 -0.02 0" size="0.05 0.03" zaxis="0 1 0" mass="0" class="visual" material="pod_orange" />
+            <geom type="cylinder" pos="0 -0.02 0" size="0.021 0.034" zaxis="0 1 0" mass="0" class="visual" material="graphite_dark" />
+            <geom type="capsule" fromto="0 0 -0.075 0 0 -0.245" size="0.053" mass="0" class="visual" material="alu" />
+            <geom type="box" pos="0.0515 0 -0.16" size="0.0045 0.0075 0.062" mass="0" class="visual" material="graphite_dark" />
+            <geom type="box" pos="0 -0.0515 -0.16" size="0.0075 0.0045 0.062" mass="0" class="visual" material="graphite_dark" />
             <body name="right_shank" pos="0 0 -0.3">
               <joint name="right_knee_pitch" axis="0 1 0" range="0 2.61799" class="actA" />
               <geom name="right_shank_act_A_0" type="sphere" size="0.055" mass="1.6" rgba="0.85 0.33 0.1 1" />
               <geom name="right_shank_capsule_1" type="capsule" fromto="0 0 -0.05 0 0 -0.25" size="0.045" mass="0.2" rgba="0.55 0.57 0.6 1" />
+              <geom type="cylinder" pos="0 -0.015 0" size="0.05 0.03" zaxis="0 1 0" mass="0" class="visual" material="pod_orange" />
+              <geom type="cylinder" pos="0 -0.015 0" size="0.021 0.034" zaxis="0 1 0" mass="0" class="visual" material="graphite_dark" />
+              <geom type="box" pos="0 0 -0.045" size="0.04 0.044 0.03" mass="0" class="visual" material="graphite_dark" />
+              <geom type="cylinder" pos="0 0 -0.1665" size="0.037 0.0885" mass="0" class="visual" material="carbon" />
+              <geom type="cylinder" pos="0 0 -0.085" size="0.0395 0.009" mass="0" class="visual" material="graphite" />
+              <geom type="cylinder" pos="0 0 -0.245" size="0.0395 0.009" mass="0" class="visual" material="graphite" />
+              <geom type="box" pos="0 0 -0.272" size="0.03 0.038 0.022" mass="0" class="visual" material="graphite_dark" />
               <body name="right_ankle_pitch_link" pos="0 0 -0.3">
                 <joint name="right_ankle_pitch" axis="0 1 0" range="-0.872665 0.872665" class="actB" damping="4" />
                 <geom name="right_ankle_pitch_link_act_B_0" type="sphere" size="0.045" mass="1.15" rgba="0.95 0.65 0.15 1" />
+                <geom type="cylinder" pos="0 -0.012 0" size="0.053 0.0375" zaxis="0 1 0" mass="0" class="visual" material="graphite" />
+                <geom type="cylinder" pos="0 -0.012 0" size="0.02226 0.0415" zaxis="0 1 0" mass="0" class="visual" material="graphite_dark" />
+                <geom type="cylinder" pos="0 -0.012 0" size="0.0555 0.006" zaxis="0 1 0" mass="0" class="visual" material="accent_orange" />
                 <body name="right_foot" pos="0 0 0">
                   <joint name="right_ankle_roll" axis="1 0 0" range="-0.523599 0.523599" class="actC" />
                   <geom name="right_foot_act_C_0" type="sphere" size="0.04" mass="0.5" rgba="0.3 0.55 0.85 1" />
                   <geom name="right_foot_bota_ft_1" type="cylinder" pos="0 0 -0.022" size="0.024 0.0131" mass="0.06" rgba="0.25 0.3 0.35 1" />
-                  <geom name="right_foot_box" type="box" pos="0.03 0 -0.035" size="0.1 0.04 0.015" mass="0.15" rgba="0.2 0.2 0.22 1" class="collision" />
+                  <geom name="right_foot_box" type="box" pos="0.03 0 -0.035" size="0.1 0.04 0.015" mass="0.15" rgba="0.3 0.3 0.32 0" class="collision" />
+                  <geom type="cylinder" pos="0.028 0 0" size="0.0275 0.02" zaxis="1 0 0" mass="0" class="visual" material="graphite_dark" />
+                  <geom type="cylinder" pos="0.028 0 0" size="0.01155 0.024" zaxis="1 0 0" mass="0" class="visual" material="graphite" />
+                  <geom type="cylinder" pos="0 0 -0.021" size="0.027 0.007" mass="0" class="visual" material="graphite" />
+                  <geom type="box" pos="-0.035 0 -0.031" size="0.035 0.037 0.019" mass="0" class="visual" material="rubber" />
+                  <geom type="box" pos="0.065 0 -0.043" size="0.065 0.037 0.007" mass="0" class="visual" material="rubber" />
+                  <geom type="box" pos="0.045 0 -0.029" size="0.038 0.03 0.009" mass="0" class="visual" material="carbon" />
                 </body>
               </body>
             </body>
@@ -97,24 +167,61 @@
         <geom name="torso_battery_2" type="box" pos="-0.06 0 0.13" size="0.042 0.047 0.132" mass="2.9" rgba="0.25 0.3 0.35 1" />
         <geom name="torso_compute_vision_3" type="box" pos="0.07 0 0.24" size="0.04 0.05 0.04" mass="1.7" rgba="0.25 0.3 0.35 1" />
         <geom name="torso_head_4" type="sphere" pos="0 0 0.42" size="0.08" mass="0.25" rgba="0.85 0.85 0.88 1" />
+        <geom type="cylinder" size="0.053 0.0375" zaxis="0 0 1" mass="0" class="visual" material="graphite" />
+        <geom type="cylinder" size="0.02226 0.0415" zaxis="0 0 1" mass="0" class="visual" material="graphite_dark" />
+        <geom type="cylinder" size="0.0555 0.006" zaxis="0 0 1" mass="0" class="visual" material="accent_orange" />
+        <geom type="box" pos="0 0 0.16" size="0.072 0.105 0.125" mass="0" class="visual" material="alu" />
+        <geom type="box" pos="0.08 0.052 0.13" size="0.009 0.058 0.075" euler="0 0 0.16" mass="0" class="visual" material="alu" />
+        <geom type="box" pos="0.08 -0.052 0.13" size="0.009 0.058 0.075" euler="0 0 -0.16" mass="0" class="visual" material="alu" />
+        <geom type="box" pos="0.094 0 0.13" size="0.0045 0.0065 0.0755" mass="0" class="visual" material="graphite" />
+        <geom type="box" pos="0.079 0 0.235" size="0.009 0.064 0.019" mass="0" class="visual" material="graphite" />
+        <geom type="box" pos="0.08 0 0.235" size="0.0055 0.054 0.0105" mass="0" class="visual" material="visor" />
+        <geom type="box" pos="0.079 0 0.211" size="0.009 0.054 0.0045" mass="0" class="visual" material="eu_blue" />
+        <geom type="box" pos="0 0 0.285" size="0.055 0.15 0.032" mass="0" class="visual" material="graphite" />
+        <geom type="box" pos="-0.08 0 0.15" size="0.012 0.062 0.115" mass="0" class="visual" material="graphite_dark" />
+        <geom type="box" pos="-0.0905 0 0.235" size="0.0025 0.028 0.005" mass="0" class="visual" material="accent_orange" />
+        <geom type="box" pos="-0.0925 0 0.115" size="0.0008 0.042 0.0035" mass="0" class="visual" material="visor" />
+        <geom type="box" pos="-0.0925 0 0.085" size="0.0008 0.042 0.0035" mass="0" class="visual" material="visor" />
+        <geom type="cylinder" pos="0 0 0.315" size="0.024 0.022" mass="0" class="visual" material="graphite" />
+        <geom type="ellipsoid" pos="0.004 0 0.423" size="0.084 0.081 0.091" mass="0" class="visual" material="shell_white" />
+        <geom type="ellipsoid" pos="0.042 0 0.432" size="0.05 0.066 0.026" mass="0" class="visual" material="visor" />
         <body name="left_shoulder_pitch_link" pos="0 0.18 0.3">
           <joint name="left_shoulder_pitch" axis="0 1 0" range="-2.61799 1.0472" class="actB" />
           <geom name="left_shoulder_pitch_link_act_B_0" type="sphere" size="0.045" mass="1.15" rgba="0.95 0.65 0.15 1" />
+          <geom type="cylinder" pos="0 0.02 0" size="0.053 0.0375" zaxis="0 1 0" mass="0" class="visual" material="graphite" />
+          <geom type="cylinder" pos="0 0.02 0" size="0.02226 0.0415" zaxis="0 1 0" mass="0" class="visual" material="graphite_dark" />
+          <geom type="cylinder" pos="0 0.02 0" size="0.0555 0.006" zaxis="0 1 0" mass="0" class="visual" material="accent_orange" />
           <body name="left_shoulder_roll_link" pos="0 0 0">
             <joint name="left_shoulder_roll" axis="1 0 0" range="-0.523599 2.79253" class="actC" />
             <geom name="left_shoulder_roll_link_act_C_0" type="sphere" size="0.04" mass="0.5" rgba="0.3 0.55 0.85 1" />
+            <geom type="cylinder" pos="0.005 0 0" size="0.0275 0.02" zaxis="1 0 0" mass="0" class="visual" material="graphite_dark" />
+            <geom type="cylinder" pos="0.005 0 0" size="0.01155 0.024" zaxis="1 0 0" mass="0" class="visual" material="graphite" />
             <body name="left_upper_arm" pos="0 0 0">
               <joint name="left_shoulder_yaw" axis="0 0 1" range="-1.5708 1.5708" class="actC" />
               <geom name="left_upper_arm_act_C_0" type="sphere" size="0.035" mass="0.5" rgba="0.3 0.55 0.85 1" />
               <geom name="left_upper_arm_capsule_1" type="capsule" fromto="0 0 -0.05 0 0 -0.18" size="0.035" mass="0.1" rgba="0.55 0.57 0.6 1" />
+              <geom type="cylinder" pos="0 0 -0.032" size="0.0275 0.02" zaxis="0 0 1" mass="0" class="visual" material="graphite_dark" />
+              <geom type="cylinder" pos="0 0 -0.032" size="0.01155 0.024" zaxis="0 0 1" mass="0" class="visual" material="graphite" />
+              <geom type="capsule" fromto="0 0 -0.065 0 0 -0.175" size="0.038" mass="0" class="visual" material="alu" />
+              <geom type="box" pos="0 0.0365 -0.12" size="0.01 0.0045 0.042" mass="0" class="visual" material="graphite_dark" />
               <body name="left_forearm" pos="0 0 -0.22">
                 <joint name="left_elbow_pitch" axis="0 1 0" range="-2.53073 0" class="actC" />
                 <geom name="left_forearm_act_C_0" type="sphere" size="0.04" mass="0.5" rgba="0.3 0.55 0.85 1" />
                 <geom name="left_forearm_capsule_1" type="capsule" fromto="0 0 -0.05 0 0 -0.18" size="0.03" mass="0.08" rgba="0.55 0.57 0.6 1" />
+                <geom type="cylinder" pos="0 0.012 0" size="0.0275 0.02" zaxis="0 1 0" mass="0" class="visual" material="graphite_dark" />
+                <geom type="cylinder" pos="0 0.012 0" size="0.01155 0.024" zaxis="0 1 0" mass="0" class="visual" material="graphite" />
+                <geom type="box" pos="0 0 -0.028" size="0.024 0.03 0.022" mass="0" class="visual" material="graphite_dark" />
+                <geom type="cylinder" pos="0 0 -0.1125" size="0.03 0.0625" mass="0" class="visual" material="carbon" />
+                <geom type="cylinder" pos="0 0 -0.19" size="0.027 0.008" mass="0" class="visual" material="graphite" />
                 <body name="left_hand" pos="0 0 -0.22">
                   <joint name="left_wrist_roll" axis="0 0 1" range="-3.14159 3.14159" class="actC" />
                   <geom name="left_hand_act_C_0" type="sphere" size="0.035" mass="0.5" rgba="0.3 0.55 0.85 1" />
                   <geom name="left_hand_gripper_1" type="box" pos="0 0 -0.045" size="0.015 0.025 0.03" mass="0.05" rgba="0.25 0.3 0.35 1" />
+                  <geom type="cylinder" pos="0 0 -0.008" size="0.0275 0.02" zaxis="0 0 1" mass="0" class="visual" material="graphite_dark" />
+                  <geom type="cylinder" pos="0 0 -0.008" size="0.01155 0.024" zaxis="0 0 1" mass="0" class="visual" material="graphite" />
+                  <geom type="box" pos="0 0 -0.04" size="0.014 0.024 0.018" mass="0" class="visual" material="graphite" />
+                  <geom type="box" pos="0 0.014 -0.066" size="0.009 0.005 0.014" mass="0" class="visual" material="rubber" />
+                  <geom type="box" pos="0 -0.014 -0.066" size="0.009 0.005 0.014" mass="0" class="visual" material="rubber" />
                 </body>
               </body>
             </body>
@@ -123,21 +230,40 @@
         <body name="right_shoulder_pitch_link" pos="0 -0.18 0.3">
           <joint name="right_shoulder_pitch" axis="0 1 0" range="-2.61799 1.0472" class="actB" />
           <geom name="right_shoulder_pitch_link_act_B_0" type="sphere" size="0.045" mass="1.15" rgba="0.95 0.65 0.15 1" />
+          <geom type="cylinder" pos="0 -0.02 0" size="0.053 0.0375" zaxis="0 1 0" mass="0" class="visual" material="graphite" />
+          <geom type="cylinder" pos="0 -0.02 0" size="0.02226 0.0415" zaxis="0 1 0" mass="0" class="visual" material="graphite_dark" />
+          <geom type="cylinder" pos="0 -0.02 0" size="0.0555 0.006" zaxis="0 1 0" mass="0" class="visual" material="accent_orange" />
           <body name="right_shoulder_roll_link" pos="0 0 0">
             <joint name="right_shoulder_roll" axis="1 0 0" range="-2.79253 0.523599" class="actC" />
             <geom name="right_shoulder_roll_link_act_C_0" type="sphere" size="0.04" mass="0.5" rgba="0.3 0.55 0.85 1" />
+            <geom type="cylinder" pos="0.005 0 0" size="0.0275 0.02" zaxis="1 0 0" mass="0" class="visual" material="graphite_dark" />
+            <geom type="cylinder" pos="0.005 0 0" size="0.01155 0.024" zaxis="1 0 0" mass="0" class="visual" material="graphite" />
             <body name="right_upper_arm" pos="0 0 0">
               <joint name="right_shoulder_yaw" axis="0 0 1" range="-1.5708 1.5708" class="actC" />
               <geom name="right_upper_arm_act_C_0" type="sphere" size="0.035" mass="0.5" rgba="0.3 0.55 0.85 1" />
               <geom name="right_upper_arm_capsule_1" type="capsule" fromto="0 0 -0.05 0 0 -0.18" size="0.035" mass="0.1" rgba="0.55 0.57 0.6 1" />
+              <geom type="cylinder" pos="0 0 -0.032" size="0.0275 0.02" zaxis="0 0 1" mass="0" class="visual" material="graphite_dark" />
+              <geom type="cylinder" pos="0 0 -0.032" size="0.01155 0.024" zaxis="0 0 1" mass="0" class="visual" material="graphite" />
+              <geom type="capsule" fromto="0 0 -0.065 0 0 -0.175" size="0.038" mass="0" class="visual" material="alu" />
+              <geom type="box" pos="0 -0.0365 -0.12" size="0.01 0.0045 0.042" mass="0" class="visual" material="graphite_dark" />
               <body name="right_forearm" pos="0 0 -0.22">
                 <joint name="right_elbow_pitch" axis="0 1 0" range="-2.53073 0" class="actC" />
                 <geom name="right_forearm_act_C_0" type="sphere" size="0.04" mass="0.5" rgba="0.3 0.55 0.85 1" />
                 <geom name="right_forearm_capsule_1" type="capsule" fromto="0 0 -0.05 0 0 -0.18" size="0.03" mass="0.08" rgba="0.55 0.57 0.6 1" />
+                <geom type="cylinder" pos="0 -0.012 0" size="0.0275 0.02" zaxis="0 1 0" mass="0" class="visual" material="graphite_dark" />
+                <geom type="cylinder" pos="0 -0.012 0" size="0.01155 0.024" zaxis="0 1 0" mass="0" class="visual" material="graphite" />
+                <geom type="box" pos="0 0 -0.028" size="0.024 0.03 0.022" mass="0" class="visual" material="graphite_dark" />
+                <geom type="cylinder" pos="0 0 -0.1125" size="0.03 0.0625" mass="0" class="visual" material="carbon" />
+                <geom type="cylinder" pos="0 0 -0.19" size="0.027 0.008" mass="0" class="visual" material="graphite" />
                 <body name="right_hand" pos="0 0 -0.22">
                   <joint name="right_wrist_roll" axis="0 0 1" range="-3.14159 3.14159" class="actC" />
                   <geom name="right_hand_act_C_0" type="sphere" size="0.035" mass="0.5" rgba="0.3 0.55 0.85 1" />
                   <geom name="right_hand_gripper_1" type="box" pos="0 0 -0.045" size="0.015 0.025 0.03" mass="0.05" rgba="0.25 0.3 0.35 1" />
+                  <geom type="cylinder" pos="0 0 -0.008" size="0.0275 0.02" zaxis="0 0 1" mass="0" class="visual" material="graphite_dark" />
+                  <geom type="cylinder" pos="0 0 -0.008" size="0.01155 0.024" zaxis="0 0 1" mass="0" class="visual" material="graphite" />
+                  <geom type="box" pos="0 0 -0.04" size="0.014 0.024 0.018" mass="0" class="visual" material="graphite" />
+                  <geom type="box" pos="0 0.014 -0.066" size="0.009 0.005 0.014" mass="0" class="visual" material="rubber" />
+                  <geom type="box" pos="0 -0.014 -0.066" size="0.009 0.005 0.014" mass="0" class="visual" material="rubber" />
                 </body>
               </body>
             </body>

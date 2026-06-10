@@ -1,0 +1,81 @@
+{
+  "task": "Isaac-Velocity-Flat-EUH1-Play-v0",
+  "checkpoint": "/workspace/isaaclab/logs/rsl_rl/euh1_flat/2026-06-10_12-39-19/model_4999.pt",
+  "num_envs": 256,
+  "steps_per_phase": 1600,
+  "step_dt": 0.02,
+  "warmup_steps": 100,
+  "saturation_threshold": 0.9,
+  "phases": {
+    "default_commands": {
+      "saturation_fraction": {
+        "class_a_80Nm": 0.022295572916666666,
+        "knee_80Nm": 0.06688671875,
+        "hip_pitch_80Nm": 0.0,
+        "hip_roll_80Nm": 0.0,
+        "ankle_pitch_48Nm": 0.013903645833333334,
+        "ankle_roll_20Nm": 0.72945703125
+      },
+      "peak_abs_torque_Nm": {
+        "class_a_80Nm": 80.0,
+        "knee_80Nm": 80.0,
+        "hip_pitch_80Nm": 40.221065521240234,
+        "hip_roll_80Nm": 49.42240905761719,
+        "ankle_pitch_48Nm": 48.0,
+        "ankle_roll_20Nm": 20.0
+      },
+      "effort_limits_Nm": {
+        "class_a_80Nm": 80.0,
+        "knee_80Nm": 80.0,
+        "hip_pitch_80Nm": 80.0,
+        "hip_roll_80Nm": 80.0,
+        "ankle_pitch_48Nm": 48.0,
+        "ankle_roll_20Nm": 20.0
+      },
+      "falls": 0,
+      "timeouts": 256,
+      "episodes_ended": 256,
+      "fall_rate": 0.0,
+      "sim_seconds": 32.0,
+      "lin_vel_rms_error_mps": 0.0932246245350191,
+      "ang_vel_rms_error_radps": 0.14378165333658197,
+      "mean_cmd_vx_mps": 0.4873892016808192,
+      "mean_actual_vx_mps": 0.4893669577240944
+    },
+    "forced_1.0mps": {
+      "saturation_fraction": {
+        "class_a_80Nm": 0.017176215277777778,
+        "knee_80Nm": 0.05152864583333333,
+        "hip_pitch_80Nm": 0.0,
+        "hip_roll_80Nm": 0.0,
+        "ankle_pitch_48Nm": 0.017475260416666666,
+        "ankle_roll_20Nm": 0.7725833333333333
+      },
+      "peak_abs_torque_Nm": {
+        "class_a_80Nm": 80.0,
+        "knee_80Nm": 80.0,
+        "hip_pitch_80Nm": 33.54740905761719,
+        "hip_roll_80Nm": 22.075103759765625,
+        "ankle_pitch_48Nm": 48.0,
+        "ankle_roll_20Nm": 20.0
+      },
+      "effort_limits_Nm": {
+        "class_a_80Nm": 80.0,
+        "knee_80Nm": 80.0,
+        "hip_pitch_80Nm": 80.0,
+        "hip_roll_80Nm": 80.0,
+        "ankle_pitch_48Nm": 48.0,
+        "ankle_roll_20Nm": 20.0
+      },
+      "falls": 0,
+      "timeouts": 512,
+      "episodes_ended": 512,
+      "fall_rate": 0.0,
+      "sim_seconds": 32.0,
+      "lin_vel_rms_error_mps": 0.12830860261449106,
+      "ang_vel_rms_error_radps": 0.12862309827430762,
+      "mean_cmd_vx_mps": 1.0,
+      "mean_actual_vx_mps": 0.961825162636737
+    }
+  }
+}

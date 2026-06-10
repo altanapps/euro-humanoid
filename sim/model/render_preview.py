@@ -17,7 +17,7 @@ from pathlib import Path
 HERE = Path(__file__).parent
 GAIN_SCALE = 5.0
 FPS = 50
-W, H = 1280, 720
+W, H = 1920, 1080
 
 m = mujoco.MjModel.from_xml_path(str(HERE / "euh1.xml"))
 m.actuator_gainprm[:, 0] *= GAIN_SCALE
@@ -49,7 +49,7 @@ for step in range(STEPS):
     max_tau = max(max_tau, float(np.abs(d.actuator_force).max()))
     if step % (500 // FPS) == 0:
         t = step / 500.0
-        cam.azimuth = 90 + (360 * t / 6.0 if t < 6.0 else 0)  # 6 s turntable
+        cam.azimuth = 90 + (360 * t / 7.0 if t < 7.0 else 0)  # 7 s turntable
         r.update_scene(d, cam)
         frames.append(r.render())
     if d.qpos[2] < 0.45:
@@ -59,3 +59,15 @@ out = HERE / "euh1_preview.mp4"
 imageio.mimwrite(out, frames, fps=FPS, codec="libx264", quality=8)
 print(f"OK: stood {STEPS/500:.0f}s incl. four 45 N pushes, max|torque| {max_tau:.1f} Nm")
 print(f"wrote {out}")
+
+# hero still: 3/4 front view, stand keyframe
+d_hero = mujoco.MjData(m)
+mujoco.mj_resetDataKeyframe(m, d_hero, 0)
+mujoco.mj_forward(m, d_hero)
+hero = mujoco.MjvCamera()
+hero.distance, hero.elevation, hero.azimuth = 1.9, -10, 145
+hero.lookat[:] = [0, 0, 0.60]
+r.update_scene(d_hero, hero)
+hero_out = HERE / "euh1_hero.png"
+imageio.imwrite(hero_out, r.render())
+print(f"wrote {hero_out}")
