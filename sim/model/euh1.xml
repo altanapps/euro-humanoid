@@ -90,8 +90,8 @@
                 <geom type="cylinder" pos="0 0.012 0" size="0.02226 0.0415" zaxis="0 1 0" mass="0" class="visual" material="graphite_dark" />
                 <geom type="cylinder" pos="0 0.012 0" size="0.0555 0.006" zaxis="0 1 0" mass="0" class="visual" material="accent_orange" />
                 <body name="left_foot" pos="0 0 0">
-                  <joint name="left_ankle_roll" axis="1 0 0" range="-0.523599 0.523599" class="actC" />
-                  <geom name="left_foot_act_C_0" type="sphere" size="0.04" mass="0.5" rgba="0.3 0.55 0.85 1" />
+                  <joint name="left_ankle_roll" axis="1 0 0" range="-0.523599 0.523599" class="actB" />
+                  <geom name="left_foot_act_B_0" type="sphere" size="0.04" mass="1.15" rgba="0.95 0.65 0.15 1" />
                   <geom name="left_foot_bota_ft_1" type="cylinder" pos="0 0 -0.022" size="0.024 0.0131" mass="0.06" rgba="0.25 0.3 0.35 1" />
                   <geom name="left_foot_box" type="box" pos="0.03 0 -0.035" size="0.1 0.04 0.015" mass="0.15" rgba="0.3 0.3 0.32 0" class="collision" />
                   <geom type="cylinder" pos="0.028 0 0" size="0.0275 0.02" zaxis="1 0 0" mass="0" class="visual" material="graphite_dark" />
@@ -144,8 +144,8 @@
                 <geom type="cylinder" pos="0 -0.012 0" size="0.02226 0.0415" zaxis="0 1 0" mass="0" class="visual" material="graphite_dark" />
                 <geom type="cylinder" pos="0 -0.012 0" size="0.0555 0.006" zaxis="0 1 0" mass="0" class="visual" material="accent_orange" />
                 <body name="right_foot" pos="0 0 0">
-                  <joint name="right_ankle_roll" axis="1 0 0" range="-0.523599 0.523599" class="actC" />
-                  <geom name="right_foot_act_C_0" type="sphere" size="0.04" mass="0.5" rgba="0.3 0.55 0.85 1" />
+                  <joint name="right_ankle_roll" axis="1 0 0" range="-0.523599 0.523599" class="actB" />
+                  <geom name="right_foot_act_B_0" type="sphere" size="0.04" mass="1.15" rgba="0.95 0.65 0.15 1" />
                   <geom name="right_foot_bota_ft_1" type="cylinder" pos="0 0 -0.022" size="0.024 0.0131" mass="0.06" rgba="0.25 0.3 0.35 1" />
                   <geom name="right_foot_box" type="box" pos="0.03 0 -0.035" size="0.1 0.04 0.015" mass="0.15" rgba="0.3 0.3 0.32 0" class="collision" />
                   <geom type="cylinder" pos="0.028 0 0" size="0.0275 0.02" zaxis="1 0 0" mass="0" class="visual" material="graphite_dark" />
@@ -278,13 +278,13 @@
     <position name="left_hip_pitch" joint="left_hip_pitch" ctrlrange="-2.0944 1.0472" class="actA" />
     <position name="left_knee_pitch" joint="left_knee_pitch" ctrlrange="0 2.61799" class="actA" />
     <position name="left_ankle_pitch" joint="left_ankle_pitch" ctrlrange="-0.872665 0.872665" class="actB" kp="120" />
-    <position name="left_ankle_roll" joint="left_ankle_roll" ctrlrange="-0.523599 0.523599" class="actC" />
+    <position name="left_ankle_roll" joint="left_ankle_roll" ctrlrange="-0.523599 0.523599" class="actB" />
     <position name="right_hip_yaw" joint="right_hip_yaw" ctrlrange="-0.785398 0.785398" class="actB" />
     <position name="right_hip_roll" joint="right_hip_roll" ctrlrange="-0.785398 0.523599" class="actA" />
     <position name="right_hip_pitch" joint="right_hip_pitch" ctrlrange="-2.0944 1.0472" class="actA" />
     <position name="right_knee_pitch" joint="right_knee_pitch" ctrlrange="0 2.61799" class="actA" />
     <position name="right_ankle_pitch" joint="right_ankle_pitch" ctrlrange="-0.872665 0.872665" class="actB" kp="120" />
-    <position name="right_ankle_roll" joint="right_ankle_roll" ctrlrange="-0.523599 0.523599" class="actC" />
+    <position name="right_ankle_roll" joint="right_ankle_roll" ctrlrange="-0.523599 0.523599" class="actB" />
     <position name="waist_yaw" joint="waist_yaw" ctrlrange="-1.0472 1.0472" class="actB" />
     <position name="left_shoulder_pitch" joint="left_shoulder_pitch" ctrlrange="-2.61799 1.0472" class="actB" />
     <position name="left_shoulder_roll" joint="left_shoulder_roll" ctrlrange="-0.523599 2.79253" class="actC" />

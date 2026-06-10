@@ -90,7 +90,10 @@ LEG_JOINTS = [
     JointDef("hip_pitch",   "A", (0, 1, 0), -120.0, 60.0),
     JointDef("knee_pitch",  "A", (0, 1, 0),   0.0, 150.0),
     JointDef("ankle_pitch", "B", (0, 1, 0), -50.0,  50.0),
-    JointDef("ankle_roll",  "C", (1, 0, 0), -30.0,  30.0, mirror=True),
+    # ankle_roll reclassed C -> B after R1 (sat. 77% at the 20 Nm class-C
+    # clamp; see sim/phase0b/results/R1_VERDICT.md). JD-10 until a JD-8
+    # torque datasheet justifies the lighter unit.
+    JointDef("ankle_roll",  "B", (1, 0, 0), -30.0,  30.0, mirror=True),
 ]
 
 WAIST_JOINT = JointDef("waist_yaw", "B", (0, 0, 1), -60.0, 60.0)
@@ -173,9 +176,21 @@ class Masses:
 MASSES = Masses()
 
 
+def class_counts() -> dict:
+    """Actuator-class counts derived from the joint definitions."""
+    counts = {"A": 0, "B": 0, "C": 0}
+    for jd in LEG_JOINTS:
+        counts[jd.act_class] += 2
+    counts[WAIST_JOINT.act_class] += 1
+    for jd in ARM_JOINTS:
+        counts[jd.act_class] += 2
+    return counts
+
+
 def total_mass() -> float:
     m = MASSES
-    actuators = 6 * CLASS_A.mass + 7 * CLASS_B.mass + 10 * CLASS_C.mass
+    counts = class_counts()
+    actuators = sum(counts[k] * ACTUATOR_CLASSES[k].mass for k in counts)
     structure = (m.pelvis_struct + m.torso_struct + m.head
                  + 2 * (m.thigh_struct + m.shank_struct + m.foot_struct
                         + m.upper_arm_struct + m.forearm_struct
@@ -205,7 +220,6 @@ FLOOR_FRICTION = (1.0, 0.02, 0.0001)
 
 if __name__ == "__main__":
     print(f"actuated DoF : {N_ACTUATED}")
-    print(f"class A 6 x {CLASS_A.mass:.2f} = {6 * CLASS_A.mass:.2f} kg")
-    print(f"class B 7 x {CLASS_B.mass:.2f} = {7 * CLASS_B.mass:.2f} kg")
-    print(f"class C 10 x {CLASS_C.mass:.2f} = {10 * CLASS_C.mass:.2f} kg")
+    for k, n in class_counts().items():
+        print(f"class {k} {n} x {ACTUATOR_CLASSES[k].mass:.2f} = {n * ACTUATOR_CLASSES[k].mass:.2f} kg")
     print(f"total mass   : {total_mass():.2f} kg")

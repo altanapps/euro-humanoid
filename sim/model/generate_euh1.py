@@ -28,7 +28,7 @@ from xml.etree import ElementTree as ET
 import mujoco
 import numpy as np
 
-from euh1_params import (ACTUATOR_CLASSES, ARM_JOINTS, FLOOR_FRICTION,
+from euh1_params import (ACTUATOR_CLASSES, ARM_JOINTS, FLOOR_FRICTION, class_counts,
                          JOINT_GAIN_OVERRIDES, LEG_JOINTS, MASSES, MORPH,
                          N_ACTUATED, SIM_TIMESTEP, STAND_POSE, WAIST_JOINT,
                          JointDef, total_mass)
@@ -671,12 +671,6 @@ def mass_report(model: mujoco.MjModel):
     print("-" * 37)
     print(f"{'TOTAL':<28}{tot:>9.3f}")
     print(f"(params expects {total_mass():.3f} kg)")
-    print(f"class A 6x{ACTUATOR_CLASSES['A'].mass} = "
-          f"{6 * ACTUATOR_CLASSES['A'].mass:.2f} kg | "
-          f"class B 7x{ACTUATOR_CLASSES['B'].mass} = "
-          f"{7 * ACTUATOR_CLASSES['B'].mass:.2f} kg | "
-          f"class C 10x{ACTUATOR_CLASSES['C'].mass} = "
-          f"{10 * ACTUATOR_CLASSES['C'].mass:.2f} kg")
 
 
 def compute_hold_ctrl(model: mujoco.MjModel) -> np.ndarray:
