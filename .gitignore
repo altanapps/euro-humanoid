@@ -1,0 +1,11 @@
+# External clones (Berkeley Humanoid Lite repos) — re-fetch, don't vendor
+sim/external/
+
+# Python virtual environments
+sim/.venv/
+.venv/
+venv/
+
+# Python cruft
+__pycache__/
+*.pyc
